@@ -10,15 +10,15 @@
 
 ## Theory
 ### Definitions
-Cryptographic hash function : it is a mathematical algorithm that maps data of arbitrary size to a bit string of a fixed size.
-Md5 (Message Digest version 5): hash function producing a 128-bit hash value.
-Sha256 (Secure Hash Algorithm 256-bit) : hash function producing a 256-bit hash value, whose digest is eight 32-bit words.
-Message digest :
-Round : in cryptograhy, it refers to one iteration of the iternal transformation process applied by the algorithm.
+*Cryptographic hash function* : it is a mathematical algorithm that maps data of arbitrary size to a bit string of a fixed size.  
+*Md5* (Message Digest version 5): hash function producing a 128-bit hash value.  
+*Sha256* (Secure Hash Algorithm 256-bit) : hash function producing a 256-bit hash value, whose digest is eight 32-bit words.  
+*Message digest* :  
+*Round* : in cryptograhy, it refers to one iteration of the iternal transformation process applied by the algorithm.  
 
 ### More details
 #### Md5:
-Md5 was designed in 1991 to replace an earlier hash function md4 and was specified in 1992.
+Md5 was designed in 1991, specified in 1992, to replace an earlier hash function md4.  
 It was used as cryptographic hash function but it has been found that it suffers from multiple vulnerabilities. They are mainly collisions. For example in 2012, the Flame malware could fake a Microsoft digital signature. It remains suitable to use for non cryptographic uses and might be prefered due to its lower computational requirements.
 
 #### Sha256:
@@ -40,6 +40,7 @@ The 64 bits missing are filled filled with the 64-bit value of the total length 
 	- B: 0x89ABCDEF
 	- C: 0xFEDCBA89
 	- D: 0x76543210  
+	*Note that these values are low-order bytes first.* 
 
 - **step 4 : Message processing**  
 	- Define **4 functions** :
@@ -47,14 +48,17 @@ The 64 bits missing are filled filled with the 64-bit value of the total length 
 		- G(X, Y, Z) = (X & Y) | (X & !Z)
 		- H(X, Y, Z) = (X ^ Y ^ Z)
 		- I(X, Y, Z) = Y ^ (X | !Z)
-	- Create a 64 constant elements table. These 64 values are dfined following a formula as follows:  
+	- Create a 64 constant elements table. These 64 values are defined following a formula as follows:  
 		When passed to sin() function i must be in radian.  
 	```
 	for (i = 0; i < 64; i++):  
 		T[i] = 2^32 * abs(sin(i))  
 	```
-	- Define 4 variables (AA, BB, CC and DD) to store values of A, B, C and D for later.  
-	- Split message in list of 16-bit blocks (see RFC for more).  
-	- Save A, B, C and D as AA, BB, CC and DD.
-- **step 5 : Rounds**
-
+	- **step 5 : Process 16-word blocks**
+		The documentation simply gives pseudo code here. See RFC Page 4-5.  
+		Looping through all 16-word blocks in message, a variable X is set from each 16-word block from the message.  
+			Using the value of X and the table T and the variables A, B, C and D, 4 rounds are peformed running bit wise operations.  
+			The new values assigned to A, B, C and D are added to their old value saved in AA, BB, CC and DD.  
+	- **step 6 : Output**
+		The algorithm produces 4 variables A, B, C and D. The display starts from the low-order byte of A and end with the high-order byte of D.
+		
