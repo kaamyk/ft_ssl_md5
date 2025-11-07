@@ -13,7 +13,7 @@ OBJDIR	=	.obj
 OBJS	=	$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
 CC		=	cc
-C_FLAGS	=	-Wall -Wextra -Werror -g
+C_FLAGS	=	-Wall -Wextra -Werror -g -O2
 
 $(OBJDIR)/%.o :	$(SRCDIR)/%.c
 	echo -n "Compiling " $< " ... "

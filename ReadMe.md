@@ -27,6 +27,7 @@ The SHA-2 showed some weakness but a hash made with 64 rounds of sha-256 never b
 
 ### The method
 *From RFC-1321*.  
+Note: RFC-1321 *method and implementation order look like differing* but they are not. The method describe the theory and requirements to perfom the algorithm. The algorithm process data by 64-byte chunck : the length appended at the end is processed last but is still append at the end of the input and the padding.  
 #### Md5:
 **Step 1 : Bit padding**  
 The message should be padded so that its length is 64 bits shorter than a multiple of 512 (bits).  

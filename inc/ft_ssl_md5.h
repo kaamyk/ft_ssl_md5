@@ -12,29 +12,39 @@
 typedef struct MD5_CTX
 {
 	uint32_t	state[4];
-	uint64_t	count;
-	char		buffer[64];
+	uint32_t	count[2];
+	uint8_t		buffer[64];
 }				t_MD5_CTX;
 
 //	operations.c
-int16_t f(int16_t x, int16_t y, int16_t z);
-int16_t g(int16_t x, int16_t y, int16_t z);
-int16_t h(int16_t x, int16_t y, int16_t z);
-int16_t i(int16_t x, int16_t y, int16_t z);
-int16_t rot_left(int x, uint8_t n);
-uint16_t ff(int16_t a, int16_t b, int16_t c, int16_t d, int16_t x, int16_t s, uint32_t ac);
-uint16_t gg(int16_t a, int16_t b, int16_t c, int16_t d, int16_t x, int16_t s, uint32_t ac);
-uint16_t hh(int16_t a, int16_t b, int16_t c, int16_t d, int16_t x, int16_t s, uint32_t ac);
-uint16_t ii(int16_t a, int16_t b, int16_t c, int16_t d, int16_t x, int16_t s, uint32_t ac);
+uint32_t f(uint32_t x, uint32_t y, uint32_t z);
+uint32_t g(uint32_t x, uint32_t y, uint32_t z);
+uint32_t h(uint32_t x, uint32_t y, uint32_t z);
+uint32_t i(uint32_t x, uint32_t y, uint32_t z);
+uint32_t rot_left(uint32_t x, uint32_t n);
+uint32_t ff(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
+uint32_t gg(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
+uint32_t hh(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
+uint32_t ii(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
 
 // utils.c
-void	MD5memset(char *output, char value, uint32_t len);
-unsigned char *MD5memcpy(char *dest, char *src, const uint32_t len);
+void	MD5memset(uint8_t *output, const uint8_t value, const uint32_t len);
+uint8_t	*MD5memcpy(uint8_t *dest, const uint8_t *src, const uint32_t len);
+void MDPrint (uint8_t digest[16]);
 
 // ft_strjoin.c
 char	*ft_strjoin(char const *s1, char const *s2);
 
 //	parser.c
 bool	parser(int argc, char **argv, uint8_t *options);
+
+//	main.c
+void 	decode(uint32_t *output, uint8_t *input, uint32_t len);
+void 	encode(uint8_t *output, uint32_t *input, uint32_t len);
+void	MD5Init(t_MD5_CTX *context);
+void	MD5Transform(uint32_t state[4], uint8_t block[64]);
+void MD5Update(t_MD5_CTX *context, uint8_t *input, unsigned int inputLen);
+void	MD5Final(uint8_t digest [16], t_MD5_CTX *context);
+char 	*get_input( void );
 
 #endif
