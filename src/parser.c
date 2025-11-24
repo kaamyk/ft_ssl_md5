@@ -1,31 +1,62 @@
 #include "../inc/ft_ssl_md5.h"
+#include <stdbool.h>
+#include <string.h>
 
-bool	parser(int argc, char **argv, uint8_t *options)
+bool	get_algorithm(char *runner, uint8_t *options)
 {
-	(void) argc;
-	(void) argv;
-	(void) options;
-	char	**runner = argv + 1; // skip program's name
-	
-	while (*runner != NULL)
+	if (runner == NULL)
 	{
-		if (**runner == '-')
-		{
-			switch(*++(*runner))
-			{
-				case 'p':	// print input
-					break ;
-				case 'q':	// quiet
-					break ;
-				case 'r':	// reverse format
-					break ;
-				case 's':	// string
-					break ;
-				default:
-					fprintf(stderr, "ft_ssl: Invalid option '%c'. Try 'ft_ssl -h' to print usage.\n", **runner);
-					return(1);
-			}
-		}
+		fprintf(stderr, "ft_ssl: no agorithm. Run \"./ft_ssl -h\" for usage\n");
+		return (1);
 	}
+	else if (*runner == 'm' && !strcmp(runner, "md5"))
+		*options |= MD5;
+	else if (*runner == 's' && !strcmp(runner, "sha256"))
+		*options |= SHA256;
+	else
+	{
+		fprintf(stderr, "ft_ssl: invalid algorithm. Run \"./ft_ssl -h\" for usage\n");
+		return (1);
+	}
+	return (0);
+}
+
+bool	set_option(char runner, uint8_t *options)
+{
+	switch(runner)
+	{
+		case 'p':	// print input
+			*options |= PRINT;
+			break ;
+		case 'q':	// quiet
+			*options |= QUIET;
+			break ;
+		case 'r':	// reverse format
+			*options |= REVERSE;
+			break ;
+		case 's':	// string
+			*options |= STRING;
+			break ;
+		case 'h':	// help
+			*options |= USAGE;
+			break ;
+		default:
+			fprintf(stderr, "ft_ssl: Invalid option '%c'. Try 'ft_ssl -h' to print usage.\n", runner);
+			return (1);
+	}
+	return (0);
+}
+
+bool	parser(char **argv, uint8_t *options, char ***inputs)
+{
+	char	**runner = argv + 1; // skip program's name
+	if (get_algorithm(*runner, options) == 1)
+		return (1);
+	while ((*++runner) != NULL && **runner == '-')
+	{
+		if (set_option(*(*runner + 1), options) == 1)
+			return (1);
+	}
+	*inputs = runner;
 	return (0);
 }

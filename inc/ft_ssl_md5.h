@@ -9,6 +9,22 @@
 #include <string.h>
 #include <unistd.h>
 
+#define PRINT	1
+#define QUIET	1 << 1
+#define REVERSE	1 << 2
+#define STRING	1 << 3
+#define USAGE	1 << 4
+#define MD5		1 << 5
+#define SHA256	1 << 6
+#define IS_PIPE	1 << 7
+
+typedef struct	s_data
+{
+	uint8_t	options;
+	char	*pipe;
+	char	**inputs;
+}				t_data;
+
 typedef struct MD5_CTX
 {
 	uint32_t	state[4];
@@ -36,15 +52,16 @@ void MDPrint (uint8_t digest[16]);
 char	*ft_strjoin(char const *s1, char const *s2);
 
 //	parser.c
-bool	parser(int argc, char **argv, uint8_t *options);
+bool	parser(char **argv, uint8_t *options, char ***inputs);
 
 //	main.c
 void 	decode(uint32_t *output, uint8_t *input, uint32_t len);
 void 	encode(uint8_t *output, uint32_t *input, uint32_t len);
 void	MD5Init(t_MD5_CTX *context);
 void	MD5Transform(uint32_t state[4], uint8_t block[64]);
-void MD5Update(t_MD5_CTX *context, uint8_t *input, unsigned int inputLen);
+void	MD5Update(t_MD5_CTX *context, uint8_t *input, unsigned int inputLen);
 void	MD5Final(uint8_t digest [16], t_MD5_CTX *context);
-char 	*get_input( void );
+void	MDString(const uint8_t options, const char *to_hash);
+char 	*get_input(uint8_t *options);
 
 #endif

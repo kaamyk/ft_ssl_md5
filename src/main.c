@@ -1,5 +1,6 @@
 #include "../inc/ft_ssl_md5.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 
 void decode(uint32_t *output, uint8_t *input, uint32_t len)
@@ -173,19 +174,20 @@ void	MD5Final(uint8_t digest [16], t_MD5_CTX *context)
 	MD5memset((uint8_t *)context, 0, sizeof(*context));
 }
 
-char 	*get_input( void )
+char 	*get_input(uint8_t *options)
 {
 	char		buf[256] = {0};
 	char	*tmp = NULL;
 	char	*input = calloc(1, 1);
 	if (input == NULL)
 	{
-		fprintf(stderr, "Fata Error: calloc: %s\n", strerror(errno));
+		fprintf(stderr, "Fatal Error: calloc: %s\n", strerror(errno));
 		return (NULL);
 	}
 	
 	while (read(STDIN_FILENO, buf, 255) > 0)
 	{
+		*options |= IS_PIPE;
 		tmp = input;
 		if ((input = ft_strjoin(input, buf)) == NULL)
 		{
@@ -194,40 +196,69 @@ char 	*get_input( void )
 		}
 		free(tmp);
 	}
-	printf("Input == [%s]\n", input);
 	return (input);
 }
 
-void	MDString(char *input)
+void	MDString(const uint8_t options, const char *to_hash)
 {
 	uint8_t		digest[16] = {0};
 	t_MD5_CTX	context = {0};
 	
 	MD5Init(&context);
-	MD5Update(&context, (uint8_t *)input, strlen(input));
+	MD5Update(&context, (uint8_t *)to_hash, strlen(to_hash));
 	MD5Final(digest, &context);
-	
-	printf ("MD5 (\"%s\") = ", "stdin");	// Remplacer stdin par l'input si option
+	if (!(options & QUIET))
+	{
+		if (!(options & IS_PIPE))
+			printf("MD5 ");
+		if (options & PRINT)
+			printf ("(\"%s\") = ", to_hash);	// Remplacer stdin par l'input si option
+		else
+			printf ("(%s) = ", "stdin");	// Remplacer stdin par l'input si option
+	}
 	MDPrint (digest);
 	printf ("\n");
 }
 
+void	print_args(char **argv)
+{
+	for (uint8_t i = 0; argv[i] != NULL; i++)
+	{
+		printf("argv[%d] == %s\n", i, argv[i]);
+	}
+}
+
+void	launch_algo(t_data data)
+{
+	if ((data.options >> 5) & 1)
+	{
+		MDString(data.options, data.pipe);
+		data.options &= ~(IS_PIPE);
+		while (*data.inputs != NULL)
+		{
+			MDString(data.options, *data.inputs);
+			data.inputs++;
+		}
+	}
+	// else
+	// 	SHAString(input);
+}
+
 int	main( int argc, char **argv )
 {
-	// uint8_t		options = 0;
-	char		*input = NULL;
+	t_data	data = {0};
 	
 	(void) argc;
-	(void) argv;
-	(void) input;
 	
-	// if (parser(argc, argv, &options) == 1)
-	// 	return (1);
-	// input = get_input();
-	input = "OKOKOKOK";
-	if (input == NULL)
-		exit (1);
-	MDString(input);
-	// free(input);
+	data.pipe = get_input(&data.options);
+	if (data.pipe == NULL)
+		return (1);
+	if (parser(argv, &data.options, &data.inputs) == 1)
+	{
+		free(data.pipe);
+		return (1);
+	}
+	launch_algo(data);
+	free(data.pipe);
 	return (0);
 }
