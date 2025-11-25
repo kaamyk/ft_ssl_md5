@@ -46,7 +46,8 @@ uint32_t ii(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t
 // utils.c
 void	MD5memset(uint8_t *output, const uint8_t value, const uint32_t len);
 uint8_t	*MD5memcpy(uint8_t *dest, const uint8_t *src, const uint32_t len);
-void MDPrint (uint8_t digest[16]);
+void	MDPrint (uint8_t digest[16]);
+char	*file_to_str(char *filename);
 
 // ft_strjoin.c
 char	*ft_strjoin(char const *s1, char const *s2);
@@ -61,7 +62,7 @@ void	MD5Init(t_MD5_CTX *context);
 void	MD5Transform(uint32_t state[4], uint8_t block[64]);
 void	MD5Update(t_MD5_CTX *context, uint8_t *input, unsigned int inputLen);
 void	MD5Final(uint8_t digest [16], t_MD5_CTX *context);
-void	MDString(const uint8_t options, const char *to_hash);
+void	MDString(const uint8_t options, const char *name, const char *to_hash);
 char 	*get_input(uint8_t *options);
 
 #endif

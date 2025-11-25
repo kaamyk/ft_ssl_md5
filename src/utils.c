@@ -27,20 +27,23 @@ void	MDPrint (uint8_t digest[16])
 
 char	*file_to_str(char *filename)
 {
-	FILE	*file = fopen(filename, "r");
 	char	*content = NULL;
-	char	*buf = NULL;
+	char	*buf[256] = {0};
 	char	*tmp = NULL;
+	FILE	*file = fopen(filename, "r");
 	
 	if (file == NULL)
 	{
-		fprintf(stderr, "ft_ssl: fopen: %s\n", strerror(errno));
+		fprintf(stderr, "ft_ssl: fopen: '%s': %s\n", filename, strerror(errno));
 		return (NULL);
 	}
-	while (fgets(buf, 255, file) != NULL && errno == 0)
+	while (fgets((char *)buf, 255, file))
 	{
 		tmp = content;
-		content = ft_strjoin(content, buf);
+		if (content != NULL)
+			content = ft_strjoin(content, (char *)buf);
+		else
+			content = strdup((char *)buf);
 		if (content == NULL)
 		{
 			fprintf(stderr, "ft_ssl: fatal error: %s\n", strerror(errno));
@@ -49,5 +52,8 @@ char	*file_to_str(char *filename)
 		}
 		free(tmp);
 	}
+	if (ferror(file))
+		fprintf(stderr, "ft_ssl: fgets: %s\n", strerror(errno));
+	fclose(file);
 	return (content);
 }
