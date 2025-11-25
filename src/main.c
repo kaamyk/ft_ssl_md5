@@ -1,4 +1,4 @@
-#include "../inc/ft_ssl_md5.h"
+#include "../inc/ft_ssl.h"
 
 void	print_args(char **argv)
 {

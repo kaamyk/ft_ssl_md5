@@ -1,4 +1,4 @@
-#include "../inc/ft_ssl_md5.h"
+#include "../inc/ft_ssl.h"
 
 void	header_display(uint8_t options, const char *name, const char *to_hash)
 {

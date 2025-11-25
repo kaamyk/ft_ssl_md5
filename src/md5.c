@@ -1,4 +1,4 @@
-#include "../inc/ft_ssl_md5.h"
+#include "../inc/ft_ssl.h"
 
 void	MD5Init(t_MD5_CTX *context)
 {

@@ -1,4 +1,5 @@
-#include "../inc/ft_ssl_md5.h"
+#include "../inc/ft_ssl.h"
+
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*result;

@@ -1,6 +1,4 @@
-#include "../inc/ft_ssl_md5.h"
-#include <stdint.h>
-#include <stdio.h>
+#include "../inc/ft_ssl.h"
 
 void	decode(uint32_t *output, uint8_t *input, uint32_t len)
 {
