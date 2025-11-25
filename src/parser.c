@@ -1,6 +1,5 @@
 #include "../inc/ft_ssl_md5.h"
-#include <stdbool.h>
-#include <string.h>
+#include <unistd.h>
 
 bool	get_algorithm(char *runner, uint8_t *options)
 {
@@ -52,10 +51,15 @@ bool	parser(char **argv, uint8_t *options, char ***inputs)
 	char	**runner = argv + 1; // skip program's name
 	if (get_algorithm(*runner, options) == 1)
 		return (1);
-	while ((*++runner) != NULL && **runner == '-')
+	while (*++runner != NULL && **runner == '-' && !(*options & STRING))
 	{
 		if (set_option(*(*runner + 1), options) == 1)
 			return (1);
+	}
+	if ((*options & STRING) != 0 && *runner == NULL)
+	{
+		write(STDERR_FILENO, "ft_ssl: '-s' options gets a invalid argument. Run './ft_ssl -h' for usage.\n", 75);
+		return (1);
 	}
 	*inputs = runner;
 	return (0);

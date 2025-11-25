@@ -212,9 +212,9 @@ void	MDString(const uint8_t options, const char *to_hash)
 		if (!(options & IS_PIPE))
 			printf("MD5 ");
 		if (options & PRINT)
-			printf ("(\"%s\") = ", to_hash);	// Remplacer stdin par l'input si option
+			printf ("(\"%s\") = ", to_hash);
 		else
-			printf ("(%s) = ", "stdin");	// Remplacer stdin par l'input si option
+			write(STDOUT_FILENO, "(stdin)", 7);
 	}
 	MDPrint (digest);
 	printf ("\n");
@@ -244,20 +244,32 @@ void	launch_algo(t_data data)
 	// 	SHAString(input);
 }
 
-int	main( int argc, char **argv )
+void	print_arguments(char **argv)
+{
+	printf("================\n");
+	printf("**argv:\n");
+	while (*argv != NULL)
+	{
+		printf("\t%s\n", *(argv++));
+	}
+	printf("================\n");
+}
+
+int		main( int argc, char **argv )
 {
 	t_data	data = {0};
 	
 	(void) argc;
 	
-	data.pipe = get_input(&data.options);
-	if (data.pipe == NULL)
-		return (1);
+	print_arguments(argv);
 	if (parser(argv, &data.options, &data.inputs) == 1)
 	{
 		free(data.pipe);
 		return (1);
 	}
+	data.pipe = get_input(&data.options);
+	if (data.pipe == NULL)
+		return (1);
 	launch_algo(data);
 	free(data.pipe);
 	return (0);
