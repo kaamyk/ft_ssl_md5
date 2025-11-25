@@ -1,5 +1,4 @@
 #include "../inc/ft_ssl_md5.h"
-#include <unistd.h>
 
 bool	get_algorithm(char *runner, uint8_t *options)
 {

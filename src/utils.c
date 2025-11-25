@@ -2,6 +2,25 @@
 #include <stdint.h>
 #include <stdio.h>
 
+void	decode(uint32_t *output, uint8_t *input, uint32_t len)
+{
+	for (uint32_t i = 0, j = 0; j < len; i++, j += 4)
+	{
+		output[i] = ((uint32_t)input[j]) | (((uint32_t)input[j + 1]) << 8) | (((uint32_t)input[j + 2]) << 16) | (((uint32_t)input[j + 3]) << 24);
+	}
+}
+
+void	encode(uint8_t *output, uint32_t *input, uint32_t len)
+{
+	for (uint32_t i = 0, j = 0; j < len; i++, j += 4)
+	{
+		output[j] = (uint8_t)(input[i] & 0xff);
+		output[j + 1] = (uint8_t)((input[i] >> 8) & 0xff);
+		output[j + 2] = (uint8_t)((input[i] >> 16) & 0xff);
+		output[j + 3] = (uint8_t)((input[i] >> 24) & 0xff);
+	}
+}
+
 uint8_t	*MD5memcpy(uint8_t *dest, const uint8_t *src, const uint32_t len)
 {
 	for (uint32_t i = 0; i < len; i++)
@@ -17,12 +36,6 @@ void	MD5memset(uint8_t *output, const uint8_t value, const uint32_t len)
 	{
 		output[i] = value;
 	}
-}
-
-void	MDPrint (uint8_t digest[16])
-{
-	for (uint8_t i = 0; i < 16; i++)
-	printf ("%02x", digest[i]);
 }
 
 char	*file_to_str(char *filename)
