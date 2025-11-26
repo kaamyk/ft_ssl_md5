@@ -1,15 +1,42 @@
-#include "../inc/ft_ssl.h"
+#include "../inc/sha256.h"
 
-static int SHA224_256Reset(t_SHA256_CTX *context, uint32_t *H0)
+/* Initial Hash Values: FIPS-180-2 section 5.3.2 */
+static uint32_t SHA256_H0[SHA256_HSSZ/4] = {
+  0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
+  0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19
+};
+
+static inline uint32_t SHA_Ch(uint32_t x, uint32_t y, uint32_t z){ return((x & y) | (~x & z)); }
+static inline uint32_t SHA_Maj(uint32_t x, uint32_t y, uint32_t z){ return (x & y) ^ (x & z) ^ (x & z); }
+
+static inline uint32_t sha256_SIGMA0(uint32_t word) { return (ROTR(2 , word) ^ ROTR(13, word) ^ ROTR(22, word)); }
+static inline uint32_t sha256_SIGMA1(uint32_t word) { return (ROTR(6 , word) ^ ROTR(11, word) ^ ROTR(25, word)); }
+static inline uint32_t sha256_sigma0(uint32_t word) { return (ROTR(7 , word) ^ ROTR(18, word) ^ SHTR(3 , word)); }
+static inline uint32_t sha256_sigma1(uint32_t word) { return (ROTR(17, word) ^ ROTR(19, word) ^ SHTR(10, word)); }
+
+/*
+ * add "length" to the length
+ */
+static uint32_t	addTemp = 0;
+// #define SHA224_256AddLength(context, length)
+// (addTemp = (context)->Length_Low, (context)->Corrupted = (((context)->Length_Low += (length)) < addTemp) && (++(context)->Length_High == 0) ? 1 : 0)
+static inline uint32_t	SHA224_256AddLength(t_SHA256_CTX *context, uint32_t length)
+{
+	addTemp = context->Length_Low;
+	context->Corrupted = ((context->Length_Low += length) < addTemp && ++context->Length_High == 0) & 1;
+	return (context->Corrupted);
+}
+
+static int	SHA224_256Reset(t_SHA256_CTX *context, uint32_t *H0)
 {
 	if (!context)
-		return (0);
+		return (shaSuccess);
 
 	context->Length_Low = 0;
 	context->Length_High = 0;
-	
+
 	context->Message_Block_Index = 0;
-	
+
 	context->Intermediate_Hash[0] = H0[0];
 	context->Intermediate_Hash[1] = H0[1];
 	context->Intermediate_Hash[2] = H0[2];
@@ -18,11 +45,11 @@ static int SHA224_256Reset(t_SHA256_CTX *context, uint32_t *H0)
 	context->Intermediate_Hash[5] = H0[5];
 	context->Intermediate_Hash[6] = H0[6];
 	context->Intermediate_Hash[7] = H0[7];
-	
+
 	context->Computed  = 0;
 	context->Corrupted = 0;
-	
-	return (0);
+
+	return (shaSuccess);
 }
 
 static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
@@ -57,10 +84,10 @@ static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
 			| (((uint32_t)context->Message_Block[t4 + 1]) << 16)
 			| (((uint32_t)context->Message_Block[t4 + 2]) << 8)
 			| (((uint32_t)context->Message_Block[t4 + 3]));
-	
+
 	for (t = 16; t < 64; t++)
-		W[t] = SHA256_sigma1(W[t-2]) + W[t-7] + SHA256_sigma0(W[t-15]) + W[t-16];
-	
+		W[t] = sha256_sigma1(W[t-2]) + W[t-7] + sha256_sigma0(W[t-15]) + W[t-16];
+
 	A = context->Intermediate_Hash[0];
 	B = context->Intermediate_Hash[1];
 	C = context->Intermediate_Hash[2];
@@ -72,8 +99,8 @@ static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
 
 	for (t = 0; t < 64; t++)
 	{
-		temp1 = H + SHA256_SIGMA1(E) + SHA_Ch(E,F,G) + K[t] + W[t];
-		temp2 = SHA256_SIGMA0(A) + SHA_Maj(A,B,C);
+		temp1 = H + sha256_SIGMA1(E) + SHA_Ch(E,F,G) + K[t] + W[t];
+		temp2 = sha256_SIGMA0(A) + SHA_Maj(A,B,C);
 		H = G;
 		G = F;
 		F = E;
@@ -91,7 +118,7 @@ static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
 	context->Intermediate_Hash[5] += F;
 	context->Intermediate_Hash[6] += G;
 	context->Intermediate_Hash[7] += H;
-	
+
 	context->Message_Block_Index = 0;
 }
 
@@ -112,10 +139,10 @@ static void SHA224_256PadMessage(t_SHA256_CTX *context, uint8_t Pad_Byte)
 	}
 	else
 		context->Message_Block[context->Message_Block_Index++] = Pad_Byte;
-	
+
 	while (context->Message_Block_Index < (SHA256_BLSZ - 8))
 		context->Message_Block[context->Message_Block_Index++] = 0;
-	
+
 	/*
 	* Store the message length as the last 8 octets
 	*/
@@ -127,14 +154,14 @@ static void SHA224_256PadMessage(t_SHA256_CTX *context, uint8_t Pad_Byte)
 	context->Message_Block[61] = (uint8_t)(context->Length_Low >> 16);
 	context->Message_Block[62] = (uint8_t)(context->Length_Low >> 8);
 	context->Message_Block[63] = (uint8_t)(context->Length_Low);
-	
+
 	SHA224_256ProcessMessageBlock(context);
 }
 
 static void SHA224_256Finalize(t_SHA256_CTX *context, uint8_t Pad_Byte)
 {
 	int i = 0;
-	
+
 	SHA224_256PadMessage(context, Pad_Byte);
 	/* message may be sensitive, so clear it out */
 	for (i = 0; i < SHA256_BLSZ; ++i)
@@ -147,20 +174,20 @@ static void SHA224_256Finalize(t_SHA256_CTX *context, uint8_t Pad_Byte)
 static int	SHA224_256ResultN(t_SHA256_CTX *context, uint8_t *Message_Digest, int HashSize)
 {
 	int i = 0;
-	
+
 	if (!context || !Message_Digest)
-		return (0);
-	
+		return (shaSuccess);
+
 	if (context->Corrupted)
 		return (context->Corrupted);
-	
+
 	if (!context->Computed)
 		SHA224_256Finalize(context, 0x80);
-	
+
 	for (i = 0; i < HashSize; ++i)
 		Message_Digest[i] = (uint8_t)(context->Intermediate_Hash[i >> 2] >> 8 * (3 - (i & 0x03)));
-	
-	return (0);
+
+	return (shaSuccess);
 }
 
 
@@ -205,11 +232,11 @@ int		SHA256Reset(t_SHA256_CTX *context)
 int		SHA256Input(t_SHA256_CTX *context, const uint8_t *message_array, unsigned int length)
 {
 	if (!length)
-		return (0);
-	
+		return (shaSuccess);
+
 	if (!context || !message_array)
-		return (0);
-	
+		return (shaSuccess);
+
 	if (context->Computed)
 	{
 		context->Corrupted = shaStateError;
@@ -218,7 +245,7 @@ int		SHA256Input(t_SHA256_CTX *context, const uint8_t *message_array, unsigned i
 
 	if (context->Corrupted)
 		return (context->Corrupted);
-	
+
 	while (length-- && !context->Corrupted)
 	{
 		context->Message_Block[context->Message_Block_Index++] = (*message_array & 0xFF);
@@ -226,7 +253,7 @@ int		SHA256Input(t_SHA256_CTX *context, const uint8_t *message_array, unsigned i
 			SHA224_256ProcessMessageBlock(context);
 		message_array++;
 	}
-	return (0);
+	return (shaSuccess);
 }
 
 /*
@@ -262,9 +289,9 @@ int		SHA256FinalBits(t_SHA256_CTX *context, const uint8_t message_bits, unsigned
 		/* 6 0b00000010 */ 0x02, /* 7 0b00000001 */ 0x01 };
 
 	if (!length)
-		return (0);
+		return (shaSuccess);
 	if (!context)
-		return (NULL);
+		return (shaNull);
 	if ((context->Computed) || (length >= 8) || (length == 0))
 	{
 		context->Corrupted = shaStateError;
@@ -274,7 +301,7 @@ int		SHA256FinalBits(t_SHA256_CTX *context, const uint8_t message_bits, unsigned
 		return (context->Corrupted);
 	SHA224_256AddLength(context, length);
 	SHA224_256Finalize(context, (uint8_t)((message_bits & masks[length]) | markbit[length]));
-	return (0);
+	return (shaSuccess);
 }
 
 /*
@@ -297,5 +324,5 @@ int		SHA256FinalBits(t_SHA256_CTX *context, const uint8_t message_bits, unsigned
  */
 int SHA256Result(t_SHA256_CTX *context, uint8_t Message_Digest[])
 {
-	return (SHA224_256ResultN(context, Message_Digest, SHA256HashSize));
+	return (SHA224_256ResultN(context, Message_Digest, SHA256_HSSZ));
 }

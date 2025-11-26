@@ -1,5 +1,42 @@
 #include "../inc/ft_ssl.h"
 
+static inline uint32_t f(uint32_t x, uint32_t y, uint32_t z){ return((x & y) | (~x & z)); }
+static inline uint32_t g(uint32_t x, uint32_t y, uint32_t z){ return((x & z) | (y & ~z)); }
+static inline uint32_t h(uint32_t x, uint32_t y, uint32_t z){ return (x ^ y ^ z); }
+static inline uint32_t i(uint32_t x, uint32_t y, uint32_t z){ return (y ^ (x | ~z)); }
+
+static inline uint32_t ff(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
+{
+	a += f(b, c, d) + x + ac;
+	a = ROTL(a, s);
+	a += b;
+	return a;
+}
+
+static inline uint32_t gg(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
+{
+	a += g(b, c, d) + x + ac;
+	a = ROTL(a, s);
+	a += b;
+	return a;
+}
+
+static inline uint32_t hh(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
+{
+	a += h(b, c, d) + x + ac;
+	a = ROTL(a, s);
+	a += b;
+	return a;
+}
+
+static inline uint32_t ii(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
+{
+	a += i(b, c, d) + x + ac;
+	a = ROTL(a, s);
+	a += b;
+	return a;
+}
+
 void	MD5Init(t_MD5_CTX *context)
 {
 	context->count[0] = 0;
