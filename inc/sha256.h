@@ -33,9 +33,9 @@ enum {
 };
 
 //	sha256.c
-extern int	SHA256Reset(t_SHA256_CTX *);
-extern int	SHA256Input(t_SHA256_CTX *, const uint8_t *bytes, unsigned int bytecount);
-extern int	SHA256FinalBits(t_SHA256_CTX *, const uint8_t bits, unsigned int bitcount);
-extern int	SHA256Result(t_SHA256_CTX *, uint8_t Message_Digest[SHA256_HSSZ]);// 
+extern int		SHA256Reset(t_SHA256_CTX *);
+extern int		SHA256Input(t_SHA256_CTX *, const uint8_t *bytes, unsigned int bytecount);
+extern int		SHA256FinalBits(t_SHA256_CTX *, const uint8_t bits, unsigned int bitcount);
+extern uint8_t	SHA256Result(t_SHA256_CTX *, uint8_t Message_Digest[SHA256_HSSZ]);// 
 
 #endif

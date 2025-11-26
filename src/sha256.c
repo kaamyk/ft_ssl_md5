@@ -1,10 +1,6 @@
 #include "../inc/sha256.h"
 
 /* Initial Hash Values: FIPS-180-2 section 5.3.2 */
-static uint32_t SHA256_H0[SHA256_HSSZ/4] = {
-  0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
-  0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19
-};
 
 static inline uint32_t SHA_Ch(uint32_t x, uint32_t y, uint32_t z){ return((x & y) | (~x & z)); }
 static inline uint32_t SHA_Maj(uint32_t x, uint32_t y, uint32_t z){ return (x & y) ^ (x & z) ^ (x & z); }
@@ -20,15 +16,32 @@ static inline uint32_t sha256_sigma1(uint32_t word) { return (ROTR(17, word) ^ R
 static uint32_t	addTemp = 0;
 // #define SHA224_256AddLength(context, length)
 // (addTemp = (context)->Length_Low, (context)->Corrupted = (((context)->Length_Low += (length)) < addTemp) && (++(context)->Length_High == 0) ? 1 : 0)
-static inline uint32_t	SHA224_256AddLength(t_SHA256_CTX *context, uint32_t length)
+static inline uint32_t	SHA256AddLength(t_SHA256_CTX *context, uint32_t length)
 {
 	addTemp = context->Length_Low;
 	context->Corrupted = ((context->Length_Low += length) < addTemp && ++context->Length_High == 0) & 1;
 	return (context->Corrupted);
 }
 
-static int	SHA224_256Reset(t_SHA256_CTX *context, uint32_t *H0)
+/*
+ * SHA256Reset
+ *
+ * Description:
+ *   This function will initialize the t_SHA256_CTX in preparation
+ *   for computing a new SHA256 message digest.
+ *
+ * Parameters:
+ *   context: [in/out]
+ *     The context to reset.
+ *
+ * Returns:
+ *   sha Error Code.
+ */
+int	SHA256Reset(t_SHA256_CTX *context)
 {
+	uint32_t SHA256_H0[SHA256_HSSZ/4] = {
+		0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
+		0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 };
 	if (!context)
 		return (shaSuccess);
 
@@ -37,14 +50,14 @@ static int	SHA224_256Reset(t_SHA256_CTX *context, uint32_t *H0)
 
 	context->Message_Block_Index = 0;
 
-	context->Intermediate_Hash[0] = H0[0];
-	context->Intermediate_Hash[1] = H0[1];
-	context->Intermediate_Hash[2] = H0[2];
-	context->Intermediate_Hash[3] = H0[3];
-	context->Intermediate_Hash[4] = H0[4];
-	context->Intermediate_Hash[5] = H0[5];
-	context->Intermediate_Hash[6] = H0[6];
-	context->Intermediate_Hash[7] = H0[7];
+	context->Intermediate_Hash[0] = SHA256_H0[0];
+	context->Intermediate_Hash[1] = SHA256_H0[1];
+	context->Intermediate_Hash[2] = SHA256_H0[2];
+	context->Intermediate_Hash[3] = SHA256_H0[3];
+	context->Intermediate_Hash[4] = SHA256_H0[4];
+	context->Intermediate_Hash[5] = SHA256_H0[5];
+	context->Intermediate_Hash[6] = SHA256_H0[6];
+	context->Intermediate_Hash[7] = SHA256_H0[7];
 
 	context->Computed  = 0;
 	context->Corrupted = 0;
@@ -52,10 +65,10 @@ static int	SHA224_256Reset(t_SHA256_CTX *context, uint32_t *H0)
 	return (shaSuccess);
 }
 
-static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
+static void	SHA256ProcessMessageBlock(t_SHA256_CTX *context)
 {
 	/* Constants defined in FIPS-180-2, section 4.2.2 */
-	static const uint32_t K[64] = {
+	const uint32_t K[64] = {
 		0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
 		0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01,
 		0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7,
@@ -86,7 +99,7 @@ static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
 			| (((uint32_t)context->Message_Block[t4 + 3]));
 
 	for (t = 16; t < 64; t++)
-		W[t] = sha256_sigma1(W[t-2]) + W[t-7] + sha256_sigma0(W[t-15]) + W[t-16];
+		W[t] = sha256_sigma1(W[t-2]) + W[t-7] + sha256_sigma0(W[t - 15]) + W[t - 16];
 
 	A = context->Intermediate_Hash[0];
 	B = context->Intermediate_Hash[1];
@@ -97,7 +110,7 @@ static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
 	G = context->Intermediate_Hash[6];
 	H = context->Intermediate_Hash[7];
 
-	for (t = 0; t < 64; t++)
+	for (uint32_t t = 0; t < 64; t++)
 	{
 		temp1 = H + sha256_SIGMA1(E) + SHA_Ch(E,F,G) + K[t] + W[t];
 		temp2 = sha256_SIGMA0(A) + SHA_Maj(A,B,C);
@@ -122,7 +135,7 @@ static void	SHA224_256ProcessMessageBlock(t_SHA256_CTX *context)
 	context->Message_Block_Index = 0;
 }
 
-static void SHA224_256PadMessage(t_SHA256_CTX *context, uint8_t Pad_Byte)
+static void SHA256PadMessage(t_SHA256_CTX *context, uint8_t Pad_Byte)
 {
 	/*
 	* Check to see if the current message block is too small to hold
@@ -135,7 +148,7 @@ static void SHA224_256PadMessage(t_SHA256_CTX *context, uint8_t Pad_Byte)
 		context->Message_Block[context->Message_Block_Index++] = Pad_Byte;
 		while (context->Message_Block_Index < SHA256_BLSZ)
 			context->Message_Block[context->Message_Block_Index++] = 0;
-		SHA224_256ProcessMessageBlock(context);
+		SHA256ProcessMessageBlock(context);
 	}
 	else
 		context->Message_Block[context->Message_Block_Index++] = Pad_Byte;
@@ -155,26 +168,40 @@ static void SHA224_256PadMessage(t_SHA256_CTX *context, uint8_t Pad_Byte)
 	context->Message_Block[62] = (uint8_t)(context->Length_Low >> 8);
 	context->Message_Block[63] = (uint8_t)(context->Length_Low);
 
-	SHA224_256ProcessMessageBlock(context);
+	SHA256ProcessMessageBlock(context);
 }
 
-static void SHA224_256Finalize(t_SHA256_CTX *context, uint8_t Pad_Byte)
+static void SHA256Finalize(t_SHA256_CTX *context, uint8_t Pad_Byte)
 {
-	int i = 0;
-
-	SHA224_256PadMessage(context, Pad_Byte);
+	SHA256PadMessage(context, Pad_Byte);
 	/* message may be sensitive, so clear it out */
-	for (i = 0; i < SHA256_BLSZ; ++i)
+	for (uint8_t i = 0; i < SHA256_BLSZ; ++i)
 		context->Message_Block[i] = 0;
 	context->Length_Low = 0;  /* and clear length */
 	context->Length_High = 0;
 	context->Computed = 1;
 }
 
-static int	SHA224_256ResultN(t_SHA256_CTX *context, uint8_t *Message_Digest, int HashSize)
+/*
+ * SHA256Result
+ *
+ * Description:
+ *   This function will return the 256-bit message
+ *   digest into the Message_Digest array provided by the caller.
+ *   NOTE: The first octet of hash is stored in the 0th element,
+ *      the last octet of hash in the 32nd element.
+ *
+ * Parameters:
+ *   context: [in/out]
+ *     The context to use to calculate the SHA hash.
+ *   Message_Digest: [out]
+ *     Where the digest is returned.
+ *
+ * Returns:
+ *   sha Error Code.
+ */
+uint8_t	SHA256Result(t_SHA256_CTX *context, uint8_t *Message_Digest)
 {
-	int i = 0;
-
 	if (!context || !Message_Digest)
 		return (shaSuccess);
 
@@ -182,33 +209,15 @@ static int	SHA224_256ResultN(t_SHA256_CTX *context, uint8_t *Message_Digest, int
 		return (context->Corrupted);
 
 	if (!context->Computed)
-		SHA224_256Finalize(context, 0x80);
+		SHA256Finalize(context, 0x80);
 
-	for (i = 0; i < HashSize; ++i)
+	for (uint8_t i = 0; i < SHA256_HSSZ; ++i)
 		Message_Digest[i] = (uint8_t)(context->Intermediate_Hash[i >> 2] >> 8 * (3 - (i & 0x03)));
 
 	return (shaSuccess);
 }
 
 
-/*
- * SHA256Reset
- *
- * Description:
- *   This function will initialize the t_SHA256_CTX in preparation
- *   for computing a new SHA256 message digest.
- *
- * Parameters:
- *   context: [in/out]
- *     The context to reset.
- *
- * Returns:
- *   sha Error Code.
- */
-int		SHA256Reset(t_SHA256_CTX *context)
-{
-	return (SHA224_256Reset(context, SHA256_H0));
-}
 
 /*
  * SHA256Input
@@ -249,8 +258,8 @@ int		SHA256Input(t_SHA256_CTX *context, const uint8_t *message_array, unsigned i
 	while (length-- && !context->Corrupted)
 	{
 		context->Message_Block[context->Message_Block_Index++] = (*message_array & 0xFF);
-		if (!SHA224_256AddLength(context, 8) && (context->Message_Block_Index == SHA256_BLSZ))
-			SHA224_256ProcessMessageBlock(context);
+		if (!SHA256AddLength(context, 8) && (context->Message_Block_Index == SHA256_BLSZ))
+			SHA256ProcessMessageBlock(context);
 		message_array++;
 	}
 	return (shaSuccess);
@@ -299,30 +308,8 @@ int		SHA256FinalBits(t_SHA256_CTX *context, const uint8_t message_bits, unsigned
 	}
 	if (context->Corrupted)
 		return (context->Corrupted);
-	SHA224_256AddLength(context, length);
-	SHA224_256Finalize(context, (uint8_t)((message_bits & masks[length]) | markbit[length]));
+	SHA256AddLength(context, length);
+	SHA256Finalize(context, (uint8_t)((message_bits & masks[length]) | markbit[length]));
 	return (shaSuccess);
 }
 
-/*
- * SHA256Result
- *
- * Description:
- *   This function will return the 256-bit message
- *   digest into the Message_Digest array provided by the caller.
- *   NOTE: The first octet of hash is stored in the 0th element,
- *      the last octet of hash in the 32nd element.
- *
- * Parameters:
- *   context: [in/out]
- *     The context to use to calculate the SHA hash.
- *   Message_Digest: [out]
- *     Where the digest is returned.
- *
- * Returns:
- *   sha Error Code.
- */
-int SHA256Result(t_SHA256_CTX *context, uint8_t Message_Digest[])
-{
-	return (SHA224_256ResultN(context, Message_Digest, SHA256_HSSZ));
-}
