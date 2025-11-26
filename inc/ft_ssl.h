@@ -9,6 +9,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "md5.h"
+#include "sha256.h"
+
 #define PRINT	1
 #define QUIET	1 << 1
 #define REVERSE	1 << 2
@@ -25,19 +28,7 @@ typedef struct	s_data
 	char	**inputs;
 }				t_data;
 
-typedef struct MD5_CTX
-{
-	uint32_t	state[4];
-	uint32_t	count[2];
-	uint8_t		buffer[64];
-}				t_MD5_CTX;
 
-#define ROTL(bits,word)	\
-	(((word) << (bits)) | ((word) >> (32-(bits))))
-#define ROTR(bits, word)\
-	(((word) >> (bits)) | ((word) << (32-(bits))))
-#define SHTR(x, n)		\
-	((x) >> (n))
 //	operations.c
 // uint32_t	f(uint32_t x, uint32_t y, uint32_t z);
 // uint32_t	g(uint32_t x, uint32_t y, uint32_t z);
@@ -58,8 +49,6 @@ typedef struct MD5_CTX
 // utils.c
 void	decode(uint32_t *output, uint8_t *input, uint32_t len);
 void	encode(uint8_t *output, uint32_t *input, uint32_t len);
-void	MD5memset(uint8_t *output, const uint8_t value, const uint32_t len);
-uint8_t	*MD5memcpy(uint8_t *dest, const uint8_t *src, const uint32_t len);
 char	*file_to_str(char *filename);
 
 //	display.c
@@ -72,12 +61,6 @@ char	*ft_strjoin(char const *s1, char const *s2);
 
 //	parser.c
 bool	parser(char **argv, uint8_t *options, char ***inputs);
-
-//	md5.c
-void	MD5Init(t_MD5_CTX *context);
-void	MD5Transform(uint32_t state[4], uint8_t block[64]);
-void	MD5Update(t_MD5_CTX *context, uint8_t *input, unsigned int inputLen);
-void	MD5Final(uint8_t digest [16], t_MD5_CTX *context);
 
 //	main.c
 void 	decode(uint32_t *output, uint8_t *input, uint32_t len);

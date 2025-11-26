@@ -44,6 +44,20 @@ void	MDString(const uint8_t options, const char *name, const char *to_hash)
 	MDdisplay(digest, options, name, to_hash);
 }
 
+void	SHAString(const uint8_t options, const char *name, const char *to_hash)
+{
+	(void) options;
+	(void) name;
+	t_SHA256_CTX	context = {0};
+	printf("Dans SHAString\n");
+	
+	SHA256Reset(&context);
+	SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash));
+	SHA256Result(&context, context.Message_Block);
+	for (uint8_t i = 0; i < SHA256_BLSZ / 2; i++)
+		printf ("%02x", context.Message_Block[i]);
+}
+
 void	launch_algo(t_data data)
 {
 	char	*file_content = NULL;
@@ -55,12 +69,18 @@ void	launch_algo(t_data data)
 	}
 	if (data.options & IS_PIPE)
 	{
-		MDString(data.options, NULL, data.pipe);
+		if (data.options & MD5)
+			MDString(data.options, NULL, data.pipe);
+		else 
+			SHAString(data.options, NULL, data.pipe);
 		data.options &= ~(IS_PIPE);
 	}
 	if (data.options & STRING)
 	{
-		MDString(data.options, NULL, *(data.inputs++));
+		if (data.options & MD5)
+			MDString(data.options, NULL, *(data.inputs++));
+		else 
+			SHAString(data.options, NULL, *(data.inputs++));
 		data.options &= ~(STRING);
 	}
 	while (*data.inputs != NULL)
@@ -70,8 +90,8 @@ void	launch_algo(t_data data)
 		{
 			if (data.options & MD5)
 				MDString(data.options, *data.inputs, file_content);
-			// else if (data.options & SHA256)
-			// 	SHAString(data.options, *data.inputs, file_content);
+			else if (data.options & SHA256)
+				SHAString(data.options, *data.inputs, file_content);
 		}
 		free(file_content);
 		data.inputs++;

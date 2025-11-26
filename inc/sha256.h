@@ -1,7 +1,7 @@
 #ifndef SHA256_H
 #define SHA256_H
 
-#include "ft_ssl.h"
+#include "utils.h"
 
 #define SHA256_BLSZ	64
 #define SHA256_HSSZ	32

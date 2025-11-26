@@ -22,7 +22,7 @@ void	header_display(uint8_t options, const char *name, const char *to_hash)
 void	MDPrint (const uint8_t digest[16])
 {
 	for (uint8_t i = 0; i < 16; i++)
-	printf ("%02x", digest[i]);
+		printf ("%02x", digest[i]);
 }
 
 void	MDdisplay(const uint8_t digest[16], uint8_t options, const char *name, const char *to_hash)
