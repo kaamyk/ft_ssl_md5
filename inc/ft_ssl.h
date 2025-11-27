@@ -64,8 +64,14 @@ char	*ft_strjoin(char const *s1, char const *s2);
 //	parser.c
 bool	parser(char **argv, uint8_t *options, char ***inputs);
 
-//	main.c
+//	routine.c
 void	MDString(const uint8_t options, const char *name, const char *to_hash);
+void	SHAString(const uint8_t options, const char *name, const char *to_hash);
+void	launch_algo(uint8_t options, char *name, char* to_hash);
+void	routine(t_data data);
+
+//	main.c
 char 	*get_input( void );
+bool	is_in_pipe( void );
 
 #endif
