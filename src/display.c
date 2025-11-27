@@ -2,10 +2,18 @@
 
 void	header_display(uint8_t options, const char *name, const char *to_hash)
 {
+	size_t	to_print_size = strlen(to_hash);
+
 	if (options & IS_PIPE)
 	{
+		if (to_hash[to_print_size - 1] == '\n')
+			--to_print_size;
 		if (options & PRINT)
-			printf("(\"%s\")= ", to_hash);
+		{
+			write(STDOUT_FILENO, "(", 1);
+			write(STDOUT_FILENO, to_hash, to_print_size);
+			write(STDOUT_FILENO, ")", 1);
+		}
 		else
 			write(STDOUT_FILENO, "(stdin)= ", 10);
 	}
@@ -22,7 +30,7 @@ void	header_display(uint8_t options, const char *name, const char *to_hash)
 uint8_t	define_digest_size(uint8_t options)
 {
 	uint8_t	size = 0;
-	
+
 	switch(options & (MD5 | SHA256))
 	{
 		case MD5:
@@ -40,7 +48,7 @@ uint8_t	define_digest_size(uint8_t options)
 void	display(const uint8_t digest[16], uint8_t options, const char *name, const char *to_hash)
 {
 	uint8_t	digest_size = define_digest_size(options);
-	
+
 	if (!(options & QUIET))
 		header_display(options, name, to_hash);
 	for (uint8_t i = 0; i < digest_size; i++)
