@@ -49,13 +49,24 @@ void	SHAString(const uint8_t options, const char *name, const char *to_hash)
 	(void) options;
 	(void) name;
 	t_SHA256_CTX	context = {0};
-	printf("Dans SHAString\n");
+	uint8_t	message_digest[32] = {0};
 	
-	SHA256Reset(&context);
-	SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash));
-	SHA256Result(&context, context.Message_Block);
-	for (uint8_t i = 0; i < SHA256_BLSZ / 2; i++)
-		printf ("%02x", context.Message_Block[i]);
+	printf("SHAString : to_hash == [%s]\n", to_hash);
+	if (SHA256Reset(&context))
+	{
+		printf("Reset err\n");
+	}
+	if (SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash)))
+	{
+		printf("Input err\n");
+	}
+	if (SHA256Result(&context, (uint8_t *)message_digest))
+	{
+		printf("Resilt err\n");
+	}
+	for (uint8_t i = 0; i < SHA256_HSSZ; i++)
+		printf ("%02x", message_digest[i]);
+	printf("\n");
 }
 
 void	launch_algo(t_data data)

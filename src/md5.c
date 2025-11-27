@@ -8,7 +8,7 @@ static inline uint32_t i(uint32_t x, uint32_t y, uint32_t z){ return (y ^ (x | ~
 static inline uint32_t ff(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
 	a += f(b, c, d) + x + ac;
-	a = ROTL(s, a);
+	a = rotate_left(s, a);
 	a += b;
 	return a;
 }
@@ -16,7 +16,7 @@ static inline uint32_t ff(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32
 static inline uint32_t gg(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
 	a += g(b, c, d) + x + ac;
-	a = ROTL(s, a);
+	a = rotate_left(s, a);
 	a += b;
 	return a;
 }
@@ -24,7 +24,7 @@ static inline uint32_t gg(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32
 static inline uint32_t hh(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
 	a += h(b, c, d) + x + ac;
-	a = ROTL(s, a);
+	a = rotate_left(s, a);
 	a += b;
 	return a;
 }
@@ -32,7 +32,7 @@ static inline uint32_t hh(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32
 static inline uint32_t ii(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
 	a += i(b, c, d) + x + ac;
-	a = ROTL(s, a);
+	a = rotate_left(s, a);
 	a += b;
 	return a;
 }

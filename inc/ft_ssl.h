@@ -63,8 +63,6 @@ char	*ft_strjoin(char const *s1, char const *s2);
 bool	parser(char **argv, uint8_t *options, char ***inputs);
 
 //	main.c
-void 	decode(uint32_t *output, uint8_t *input, uint32_t len);
-void 	encode(uint8_t *output, uint32_t *input, uint32_t len);
 void	MDString(const uint8_t options, const char *name, const char *to_hash);
 char 	*get_input(uint8_t *options);
 
