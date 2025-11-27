@@ -1,7 +1,7 @@
 #include "../inc/sha256.h"
 
 static inline uint32_t SHA_Ch(uint32_t x, uint32_t y, uint32_t z) { return((x & y) | (~x & z)); }
-static inline uint32_t SHA_Maj(uint32_t x, uint32_t y, uint32_t z) { return (x & y) ^ (x & z) ^ (x & z); }
+static inline uint32_t SHA_Maj(uint32_t x, uint32_t y, uint32_t z) { return (x & y) ^ (x & z) ^ (y & z); }
 
 static inline uint32_t sha256_SIGMA0(uint32_t word) { return (rotate_right(2 , word) ^ rotate_right(13, word) ^ rotate_right(22, word)); }
 static inline uint32_t sha256_SIGMA1(uint32_t word) { return (rotate_right(6 , word) ^ rotate_right(11, word) ^ rotate_right(25, word)); }
