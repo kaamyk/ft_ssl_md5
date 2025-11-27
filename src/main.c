@@ -8,7 +8,7 @@ void	print_args(char **argv)
 	}
 }
 
-char 	*get_input(uint8_t *options)
+char 	*get_input( void )
 {
 	char		buf[256] = {0};
 	char	*tmp = NULL;
@@ -19,9 +19,8 @@ char 	*get_input(uint8_t *options)
 		return (NULL);
 	}
 	
-	while (read(STDIN_FILENO, buf, 255) > 0)
+	while (fread(buf, 1, 255, stdin) > 0)
 	{
-		*options |= IS_PIPE;
 		tmp = input;
 		if ((input = ft_strjoin(input, buf)) == NULL)
 		{
@@ -35,13 +34,13 @@ char 	*get_input(uint8_t *options)
 
 void	MDString(const uint8_t options, const char *name, const char *to_hash)
 {
-	uint8_t		digest[16] = {0};
+	uint8_t		digest[MD5_HSSZ] = {0};
 	t_MD5_CTX	context = {0};
 	
 	MD5Init(&context);
 	MD5Update(&context, (uint8_t *)to_hash, strlen(to_hash));
 	MD5Final(digest, &context);
-	MDdisplay(digest, options, name, to_hash);
+	display(digest, options, name, to_hash);
 }
 
 void	SHAString(const uint8_t options, const char *name, const char *to_hash)
@@ -49,24 +48,15 @@ void	SHAString(const uint8_t options, const char *name, const char *to_hash)
 	(void) options;
 	(void) name;
 	t_SHA256_CTX	context = {0};
-	uint8_t	message_digest[32] = {0};
+	uint8_t	digest[32] = {0};
 	
-	printf("SHAString : to_hash == [%s]\n", to_hash);
 	if (SHA256Reset(&context))
-	{
 		printf("Reset err\n");
-	}
-	if (SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash)))
-	{
+	else if (SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash)))
 		printf("Input err\n");
-	}
-	if (SHA256Result(&context, (uint8_t *)message_digest))
-	{
-		printf("Resilt err\n");
-	}
-	for (uint8_t i = 0; i < SHA256_HSSZ; i++)
-		printf ("%02x", message_digest[i]);
-	printf("\n");
+	else if (SHA256Result(&context, (uint8_t *)digest))
+		printf("Result err\n");
+	display(digest, options, name, to_hash);
 }
 
 void	launch_algo(t_data data)
@@ -120,6 +110,18 @@ void	print_arguments(char **argv)
 	printf("================\n");
 }
 
+bool	is_in_pipe( void )
+{
+	struct stat	st = {0};
+	
+	if (fstat(STDIN_FILENO, &st) == -1)
+	{
+		fprintf(stderr, "ft_ssl: is_in_pipe(): fstat(): %s\n", strerror(errno));
+		return (0);
+	}
+	return (S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode));
+}
+
 int		main( int argc, char **argv )
 {
 	t_data	data = {0};
@@ -132,9 +134,13 @@ int		main( int argc, char **argv )
 		free(data.pipe);
 		return (1);
 	}
-	data.pipe = get_input(&data.options);
-	if (data.pipe == NULL)
-		return (1);
+	if (is_in_pipe())
+	{
+		data.options |= IS_PIPE;
+		data.pipe = get_input();
+		if (data.pipe == NULL)
+			return (1);
+	}
 	launch_algo(data);
 	free(data.pipe);
 	return (0);

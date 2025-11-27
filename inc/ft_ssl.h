@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #include "md5.h"
 #include "sha256.h"
@@ -54,7 +56,7 @@ char	*file_to_str(char *filename);
 //	display.c
 void	header_display(uint8_t options, const char *name, const char *to_hash);
 void	MDPrint (const uint8_t digest[16]);
-void	MDdisplay(const uint8_t digest[16], uint8_t options, const char *name, const char *to_hash);
+void	display(const uint8_t digest[16], uint8_t options, const char *name, const char *to_hash);
 
 // ft_strjoin.c
 char	*ft_strjoin(char const *s1, char const *s2);
@@ -64,6 +66,6 @@ bool	parser(char **argv, uint8_t *options, char ***inputs);
 
 //	main.c
 void	MDString(const uint8_t options, const char *name, const char *to_hash);
-char 	*get_input(uint8_t *options);
+char 	*get_input( void );
 
 #endif

@@ -3,6 +3,8 @@
 
 #include "utils.h"
 
+#define MD5_HSSZ 16
+
 typedef struct MD5_CTX
 {
 	uint32_t	state[4];
