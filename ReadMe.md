@@ -26,9 +26,9 @@ Sha256 is part of the SHA-2 algorithms family containing 6 hash functions : SHA-
 The SHA-2 showed some weakness but a hash made with 64 rounds of sha-256 never been cracked.
 
 ### The method
+#### Md5:
 *From RFC-1321*.  
 Note: RFC-1321 *method and implementation order look like differing* but they are not. The method describe the theory and requirements to perfom the algorithm. The algorithm process data by 64-byte chunck : the length appended at the end is processed last but is still append at the end of the input and the padding.  
-#### Md5:
 **Step 1 : Bit padding**  
 The message should be padded so that its length is 64 bits shorter than a multiple of 512 (bits).  
 
@@ -62,4 +62,6 @@ The 64 bits missing are filled filled with the 64-bit value of the total length 
 			The new values assigned to A, B, C and D are added to their old value saved in AA, BB, CC and DD.  
 	- **step 6 : Output**
 		The algorithm produces 4 variables A, B, C and D. The display starts from the low-order byte of A and end with the high-order byte of D.
-		
+	#### Sha256
+	*From RFC-6234 for sha256*.  
+	The method is basically the same than md5 with the exception of the output length and the constants used.  
