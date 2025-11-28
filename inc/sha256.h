@@ -6,13 +6,6 @@
 #define SHA256_BLSZ	64
 #define SHA256_HSSZ	32
 
-// #define CH (x, y, z)(((x) & (y)) ^ ((~x) & z))
-// #define MAJ(x, y, z)(((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
-// #define BSIG0(x)	((rotate_right(2, x)) ^ (rotate_right(13, x)) ^ rotate_right(22, x))
-// #define BSIG1(x)	((rotate_right(6, x)) ^ (rotate_right(11, x)) ^ rotate_right(25, x))
-// #define SSIG0(x)	((rotate_right(7, x)) ^ (rotate_right(18, x)) ^ rotate_right(3, x))
-// #define SSIG1(x)	((rotate_right(17, x)) ^ (rotate_right(19, x)) ^ rotate_right(10, x))
-
 typedef struct SHA256_CTX
 {
 	uint32_t Intermediate_Hash[SHA256_HSSZ / 4]; /* Message Digest */

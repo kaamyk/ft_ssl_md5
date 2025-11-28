@@ -30,24 +30,6 @@ typedef struct	s_data
 	char	**inputs;
 }				t_data;
 
-
-//	operations.c
-// uint32_t	f(uint32_t x, uint32_t y, uint32_t z);
-// uint32_t	g(uint32_t x, uint32_t y, uint32_t z);
-// uint32_t	h(uint32_t x, uint32_t y, uint32_t z);
-// uint32_t	i(uint32_t x, uint32_t y, uint32_t z);
-// uint32_t	rot_left(uint32_t x, uint32_t n);
-// uint32_t	rot_right(uint32_t x, uint32_t n);
-// uint32_t	sht_right(uint32_t x, uint32_t n);
-// uint32_t	ff(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
-// uint32_t	gg(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
-// uint32_t	hh(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
-// uint32_t	ii(uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
-// uint32_t	SHA256_SIGMA0(uint32_t word);
-// uint32_t	SHA256_SIGMA1(uint32_t word);
-// uint32_t	SHA256_sigma0(uint32_t word);
-// uint32_t	SHA256_sigma1(uint32_t word);
-
 // utils.c
 void	decode(uint32_t *output, uint8_t *input, uint32_t len);
 void	encode(uint8_t *output, uint32_t *input, uint32_t len);
@@ -71,7 +53,7 @@ void	launch_algo(uint8_t options, char *name, char* to_hash);
 void	routine(t_data data);
 
 //	main.c
-char 	*get_input( void );
+char 	*read_stdin( void );
 bool	is_in_pipe( void );
 
 #endif

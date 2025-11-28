@@ -10,9 +10,9 @@ void	header_display(uint8_t options, const char *name, const char *to_hash)
 			--to_print_size;
 		if (options & PRINT)
 		{
-			write(STDOUT_FILENO, "(", 1);
+			write(STDOUT_FILENO, "(\"", 2);
 			write(STDOUT_FILENO, to_hash, to_print_size);
-			write(STDOUT_FILENO, ")", 1);
+			write(STDOUT_FILENO, "\")= ", 4);
 		}
 		else
 			write(STDOUT_FILENO, "(stdin)= ", 10);
@@ -53,7 +53,7 @@ void	display(const uint8_t digest[16], uint8_t options, const char *name, const 
 		header_display(options, name, to_hash);
 	for (uint8_t i = 0; i < digest_size; i++)
 		printf ("%02x", digest[i]);
-	if (options & REVERSE)
+	if ((options & REVERSE) && !(options & IS_PIPE))
 	{
 		if (name != NULL)
 			printf(" %s", name);

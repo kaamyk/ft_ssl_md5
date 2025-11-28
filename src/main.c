@@ -11,7 +11,7 @@ void	print_arguments(char **argv)
 	printf("================\n");
 }
 
-char 	*get_input( void )
+char 	*read_stdin( void )
 {
 	char		buf[256] = {0};
 	char	*tmp = NULL;
@@ -47,24 +47,33 @@ bool	is_in_pipe( void )
 	return (S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode));
 }
 
+bool	setup(char **argv, t_data *data)
+{
+	if (parser(argv, &data->options, &data->inputs) == 1)
+		return (1);
+	if ((!*data->inputs || (data->options & PRINT)) && is_in_pipe())
+	{
+		data->options |= IS_PIPE;
+		data->pipe = read_stdin();
+		if (data->pipe == NULL)
+			return (1);
+	}
+	if (data->options & QUIET)
+		data->options &= ~(PRINT | REVERSE);
+	return (0);
+}
+
 int		main( int argc, char **argv )
 {
 	t_data	data = {0};
 	
 	(void) argc;
 	
-	print_arguments(argv);
-	if (parser(argv, &data.options, &data.inputs) == 1)
+	// print_arguments(argv);
+	if (setup(argv, &data) == 1)
 	{
 		free(data.pipe);
-		return (1);
-	}
-	if (is_in_pipe())
-	{
-		data.options |= IS_PIPE;
-		data.pipe = get_input();
-		if (data.pipe == NULL)
-			return (1);
+		exit (1);
 	}
 	routine(data);
 	free(data.pipe);
