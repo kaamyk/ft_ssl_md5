@@ -11,20 +11,29 @@ void	MDString(const uint8_t options, const char *name, const char *to_hash)
 	display(digest, options, name, to_hash);
 }
 
-void	SHAString(const uint8_t options, const char *name, const char *to_hash)
+
+bool	SHAString(const uint8_t options, const char *name, const char *to_hash)
 {
-	(void) options;
-	(void) name;
 	t_SHA256_CTX	context = {0};
 	uint8_t	digest[32] = {0};
 	
 	if (SHA256Reset(&context))
-		printf("Reset err\n");
+	{
+		fprintf(stderr, "ft_ssl: sha256: Reset err\n");
+		return (1);
+	}
 	else if (SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash)))
-		printf("Input err\n");
+	{
+		fprintf(stderr, "ft_ssl: sha256: Input err\n");
+		return (1);
+	}
 	else if (SHA256Result(&context, (uint8_t *)digest))
-		printf("Result err\n");
+	{
+		fprintf(stderr, "ft_ssl: sha256: Result err\n");
+		return (1);
+	}
 	display(digest, options, name, to_hash);
+	return (0);
 }
 
 void	launch_algo(uint8_t options, char *name, char* to_hash)

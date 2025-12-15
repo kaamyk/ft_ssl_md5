@@ -48,7 +48,7 @@ bool	parser(char **argv, uint8_t *options, char ***inputs);
 
 //	routine.c
 void	MDString(const uint8_t options, const char *name, const char *to_hash);
-void	SHAString(const uint8_t options, const char *name, const char *to_hash);
+bool	SHAString(const uint8_t options, const char *name, const char *to_hash);
 void	launch_algo(uint8_t options, char *name, char* to_hash);
 void	routine(t_data data);
 
