@@ -67,8 +67,10 @@ void	routine(t_data data)
 	{
 		file_content = file_to_str(*data.inputs);
 		if (file_content != NULL)
+		{
 			launch_algo(data.options, *data.inputs, file_content);
-		free(file_content);
+			free(file_content);
+		}
 		data.inputs++;
 	}
 }
