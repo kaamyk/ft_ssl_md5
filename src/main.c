@@ -69,7 +69,6 @@ int		main( int argc, char **argv )
 	
 	(void) argc;
 	
-	// print_arguments(argv);
 	if (setup(argv, &data) == 1)
 	{
 		free(data.pipe);

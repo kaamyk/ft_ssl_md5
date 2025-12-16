@@ -1,6 +1,6 @@
 #include "../inc/ft_ssl.h"
 
-void	header_display(uint8_t options, const char *name, const char *to_hash)
+void	header_display(uint16_t options, const char *name, const char *to_hash)
 {
 	size_t	to_print_size = strlen(to_hash);
 
@@ -27,7 +27,7 @@ void	header_display(uint8_t options, const char *name, const char *to_hash)
 	}
 }
 
-uint8_t	define_digest_size(uint8_t options)
+uint8_t	define_digest_size(uint16_t options)
 {
 	uint8_t	size = 0;
 
@@ -45,7 +45,7 @@ uint8_t	define_digest_size(uint8_t options)
 	return (size);
 }
 
-void	display(const uint8_t digest[16], uint8_t options, const char *name, const char *to_hash)
+void	display(const uint8_t digest[16], uint16_t options, const char *name, const char *to_hash)
 {
 	uint8_t	digest_size = define_digest_size(options);
 

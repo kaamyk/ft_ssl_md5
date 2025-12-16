@@ -1,6 +1,6 @@
 #include "../inc/ft_ssl.h"
 
-void	MDString(const uint8_t options, const char *name, const char *to_hash)
+void	MDString(const uint16_t options, const char *name, const char *to_hash)
 {
 	uint8_t		digest[MD5_HSSZ] = {0};
 	t_MD5_CTX	context = {0};
@@ -12,7 +12,7 @@ void	MDString(const uint8_t options, const char *name, const char *to_hash)
 }
 
 
-bool	SHAString(const uint8_t options, const char *name, const char *to_hash)
+bool	SHAString(const uint16_t options, const char *name, const char *to_hash)
 {
 	t_SHA256_CTX	context = {0};
 	uint8_t	digest[32] = {0};
@@ -36,12 +36,24 @@ bool	SHAString(const uint8_t options, const char *name, const char *to_hash)
 	return (0);
 }
 
-void	launch_algo(uint8_t options, char *name, char* to_hash)
+void	launch_algo(uint16_t options, char *name, char* to_hash)
 {
-	if (options & MD5)
-		MDString(options, name, to_hash);
-	else if (options & SHA256)
-		SHAString(options, name, to_hash);
+	// if (options & MD5)
+	// 	MDString(options, name, to_hash);
+	// else if (options & SHA256)
+	// 	SHAString(options, name, to_hash);
+	switch (options & 0x1C00)
+	{
+		case MD5:
+			MDString(options, name, to_hash);
+			break ;
+		case SHA256:
+			SHAString(options, name, to_hash);
+			break ;
+		case BASE64:
+			base64_encode(to_hash);
+			break ;
+	}
 }
 
 void	routine(t_data data)

@@ -1,6 +1,6 @@
 #include "../inc/ft_ssl.h"
 
-bool	get_algorithm(char *runner, uint8_t *options)
+bool	get_algorithm(char *runner, uint16_t *options)
 {
 	if (runner == NULL)
 	{
@@ -11,14 +11,16 @@ bool	get_algorithm(char *runner, uint8_t *options)
 		*options |= MD5;
 	else if (*runner == 's' && !strcmp(runner, "sha256"))
 		*options |= SHA256;
+	else if (*runner == 'b' && !strcmp(runner, "base64"))
+		*options |= BASE64;
 	else
 		return (1);
 	return (0);
 }
 
-bool	set_option(char runner, uint8_t *options)
+bool	set_option(char runner, uint16_t *options)
 {
-	switch(runner)
+	switch (runner)
 	{
 		case 'p':	// print input
 			*options |= PRINT;
@@ -35,6 +37,18 @@ bool	set_option(char runner, uint8_t *options)
 		case 'h':	// help
 			*options |= USAGE;
 			break ;
+		case 'e': 
+			*options |= ENCODE;
+			break ;
+		case 'd': 
+			*options |= DECODE;
+			break ;
+		case 'i': 
+			*options |= IN_FILE;
+			break ;
+		case 'o': 
+			*options |= OUT_FILE;
+			break ;
 		default:
 			fprintf(stderr, "ft_ssl: Invalid option '%c'. Run './ft_ssl -h' to print usage.\n", runner);
 			return (1);
@@ -42,7 +56,7 @@ bool	set_option(char runner, uint8_t *options)
 	return (0);
 }
 
-bool	parser(char **argv, uint8_t *options, char ***inputs)
+bool	parser(char **argv, uint16_t *options, char ***inputs)
 {
 	char	**runner = argv + 1; // skip program's name
 	bool	no_algo	= 0;
@@ -56,7 +70,7 @@ bool	parser(char **argv, uint8_t *options, char ***inputs)
 			return (1);
 		++runner;
 	}
-	if ((*options & USAGE) == 0 && no_algo)
+	if (!(*options & USAGE) && no_algo)
 	{
 		fprintf(stderr, "ft_ssl: invalid algorithm. Run \"./ft_ssl -h\" for usage\n");
 		return (1);
