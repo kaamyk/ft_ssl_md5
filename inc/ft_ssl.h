@@ -47,7 +47,7 @@ enum
 #define SHA256	1 << sha256
 #define BASE64	1 << base64
 
-#define BASE64STR	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghipqrstuvwxyz0123456789-_"
+#define BASE64STR	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
 typedef struct	s_data
 {

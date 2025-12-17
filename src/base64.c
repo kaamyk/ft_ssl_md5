@@ -25,11 +25,10 @@ size_t	ft_strlcpy(char *dest, const char *src, size_t size)
 char	*base64_encode(char *input)
 {
 	printf("Input == [%s]\n", input);
-	const char		pad[2] = {'=', '='};
+	// const char		pad[2] = {'=', '='};
 	const uint32_t	input_l = strlen(input);
+	const uint32_t	alloc_l = (((input_l / 3) + need_pad(input_l)) * 4);
 	uint32_t	tmp = 0;
-	uint32_t	i = 0;
-	uint32_t	j = 0;
 	char		*res = NULL;
 	
 	if (!input_l)
@@ -37,20 +36,21 @@ char	*base64_encode(char *input)
 		res = calloc(1, 1);
 		return (res);
 	}
-	res = calloc( (((input_l / 3) + need_pad(input_l)) * 4) + 1, 1);
-	while (i + 2 < input_l)
+	printf("calloc(%d)\n", alloc_l + 1);
+	res = calloc(alloc_l + 1, 1);
+	if (!res)
+		return (NULL);
+	for (uint32_t k = 0, i = 0; k < alloc_l; k += 4, i += 3)
 	{
-		tmp = input[i] << 16 | input[i + 1] << 8 | input[i + 2];
-		printf("tmp == %d\n", tmp);
-		res[j]		= get_base_char(tmp >> 18);
-		res[j + 1]	= get_base_char(tmp >> 12);
-		res[j + 2]	= get_base_char(tmp >> 6);
-		res[j + 3]	= get_base_char(tmp);
-		printf("res = [%s]\n", res);
-		i += 3;
-		j += 4;
+		tmp = 0;
+		for (uint8_t j = 0; j < 3 && i + j < input_l; j++)
+				tmp |= input[i + j] << (16 - (j * 8));
+		res[k] = get_base_char(tmp >> 18);
+		res[k + 1] = get_base_char(tmp >> 12);
+		res[k + 2] = (tmp >> 6) & 0x3F ? get_base_char(tmp >> 6) : '=';
+		res[k + 3] = tmp & 0x3F ? get_base_char(tmp) : '=';
 	}
-	ft_strlcpy(res + (((input_l / 3) + need_pad(input_l)) * 4), pad, (input_l % 3) - 3);
+	printf("tmp == %d\n", tmp);
 	printf("final res == [%s]\n", res);
 	return res;
 }
