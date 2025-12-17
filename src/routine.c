@@ -36,30 +36,47 @@ bool	SHAString(const uint16_t options, const char *name, const char *to_hash)
 	return (0);
 }
 
-void	launch_algo(uint16_t options, char *name, char* to_hash)
+void	launch_algo(uint16_t options, char *filename, char* to_hash)
 {
-	// if (options & MD5)
-	// 	MDString(options, name, to_hash);
-	// else if (options & SHA256)
-	// 	SHAString(options, name, to_hash);
 	switch (options & 0x1C00)
 	{
 		case MD5:
-			MDString(options, name, to_hash);
+			MDString(options, filename, to_hash);
 			break ;
 		case SHA256:
-			SHAString(options, name, to_hash);
+			SHAString(options, filename, to_hash);
 			break ;
 		case BASE64:
-			base64_encode(to_hash);
+			B64String(options, filename, to_hash);
 			break ;
+	}
+}
+
+void	inputs_loop(t_data data)
+{
+	char	*filename = NULL;
+	char	*file_content = NULL;
+	
+	while (*data.inputs)
+	{
+		if (!(data.options & BASE64) || data.options & IN_FILE)
+			file_content = file_to_str(*data.inputs);
+		if (data.options & BASE64)
+			filename = data.out_file;
+		else
+			filename = *data.inputs;
+		if (file_content != NULL)
+		{
+			launch_algo(data.options, filename, file_content);
+			free(file_content);
+		}
+		data.inputs++;
 	}
 }
 
 void	routine(t_data data)
 {
-	char	*file_content = NULL;
-	
+	printf("data->out_file = [%s]\n", data.out_file);
 	if (data.options & USAGE)
 	{
 		write(STDOUT_FILENO, "ft_ssl usage:\n\techo string | ./ft_ssl algorithm [options] [-s \"string\"] arguments\nalgorithm values : selects the hash algorithm to run\n\tsha256\n\tmd5\noptions: \n\tsets the display format :\n\t\t-p : print stdin to stdout and append the checksum to stdout.\n\t\t-q : quiet mode\n\t\t-r : reverse the format of the ouput\n\t-s : print the sum of the given string. Any argument after this option is consider as a string. Each argument after the string is consider as a filename (see arguments section).\n\t-h : print usage\narguments :\n\t Each is considered has a file name. The command tries to open each file, is it fails it goes on.\n", 615);
@@ -75,14 +92,6 @@ void	routine(t_data data)
 		launch_algo(data.options, NULL, *(data.inputs++));
 		data.options &= ~(STRING);
 	}
-	while (*data.inputs != NULL)
-	{
-		file_content = file_to_str(*data.inputs);
-		if (file_content != NULL)
-		{
-			launch_algo(data.options, *data.inputs, file_content);
-			free(file_content);
-		}
-		data.inputs++;
-	}
+	if (data.inputs)
+		inputs_loop(data);
 }

@@ -24,7 +24,7 @@ void	encode(uint8_t *output, uint32_t *input, uint32_t len)
 }
 
 
-char	*file_to_str(char *filename)
+char	*file_to_str(const char *filename)
 {
 	char	*content = NULL;
 	char	*buf[256] = {0};

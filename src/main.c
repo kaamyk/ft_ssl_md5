@@ -49,9 +49,9 @@ bool	is_in_pipe( void )
 
 bool	setup(char **argv, t_data *data)
 {
-	if (parser(argv, &data->options, &data->inputs) == 1)
+	if (parser(argv, data) == 1)
 		return (1);
-	if ((!*data->inputs || (data->options & PRINT)) && is_in_pipe())
+	if ((!data->inputs | !*data->inputs || (data->options & PRINT)) && is_in_pipe())
 	{
 		data->options |= IS_PIPE;
 		data->pipe = read_stdin();
@@ -76,5 +76,7 @@ int		main( int argc, char **argv )
 	}
 	routine(data);
 	free(data.pipe);
+	if (data.out_file)
+		free(data.out_file);
 	return (0);
 }

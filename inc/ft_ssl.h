@@ -54,12 +54,13 @@ typedef struct	s_data
 	uint16_t	options;
 	char		*pipe;
 	char		**inputs;
+	char		*out_file;
 }				t_data;
 
 // utils.c
 void	decode(uint32_t *output, uint8_t *input, uint32_t len);
 void	encode(uint8_t *output, uint32_t *input, uint32_t len);
-char	*file_to_str(char *filename);
+char	*file_to_str(const char *filename);
 
 //	display.c
 void	header_display(uint16_t options, const char *name, const char *to_hash);
@@ -70,7 +71,7 @@ void	display(const uint8_t digest[16], uint16_t options, const char *name, const
 char	*ft_strjoin(char const *s1, char const *s2);
 
 //	parser.c
-bool	parser(char **argv, uint16_t *options, char ***inputs);
+bool	parser(char **argv, t_data *data);
 
 //	routine.c
 void	MDString(const uint16_t options, const char *name, const char *to_hash);
