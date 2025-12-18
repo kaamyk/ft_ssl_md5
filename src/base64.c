@@ -98,7 +98,7 @@ char 	*B64String(const t_data *data, const char *to_hash)
 		res = base64_encode(to_hash);
 	else
 		res = strdup(to_hash);
-	display((const uint8_t *)res, data, NULL, to_hash);
+	display((const uint8_t *)res, data, to_hash);
 	free(res);
 	return (res);
 }

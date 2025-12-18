@@ -110,46 +110,38 @@ bool	set_option(char runner, uint16_t *options)
 
 bool	parse_loop(char **runner, t_data *data, const bool no_algo)
 {
-	bool	error = 0;
-	
-	while (!error && *runner && **runner == '-' && !(data->options & STRING))
+	while (*runner && **runner == '-' && !(data->options & STRING))
 	{
 		if (set_option(*(*runner + 1), &data->options) == 1)
 			return (1);
-		if (!data->inputs && (data->options & IN_FILE))
+		if (!data->in_file && (data->options & IN_FILE))
 		{
 			if (++(*runner))
 			{
-				data->inputs = calloc(sizeof(char *), 2);
-				*data->inputs = strdup(*runner);
+				// data->inputs = calloc(sizeof(char *), 2);
+				// *data->inputs = strdup(*runner);
+				data->in_file = strdup(*runner);
 			}
 			else
-				error = 1;
+				return (parse_error("missing argument",  data->algostr[(data->options & 0x1C00) >> 10]));
 		}
-		else if (data->options & OUT_FILE)
+		else if (!data->out_file && data->options & OUT_FILE)
 		{
 			if (++runner)
 				data->out_file = strdup(*runner);
 			else
-				error = 1;
+				return (parse_error("missing argument",  data->algostr[(data->options & 0x1C00) >> 10]));
 		}
 		++runner;
 	}
 	if (!(data->options & USAGE) && no_algo)
-	{
-		fprintf(stderr, "ft_ssl: %s: invalid algorithm. Run \"./ft_ssl -h\" for usage\n", data->algostr[(data->options & 0x1C00) >> 10]);
-		return (1);
-	}
+		return (parse_error("missing argument",  data->algostr[(data->options & 0x1C00) >> 10]));
 	else if (data->options & STRING && *runner == NULL)
-	{
-		fprintf(stderr, "ft_ssl: %s: '-s' option missing arguments. Run './ft_ssl -h' for usage.\n", data->algostr[data->options & 0x1C00]);
-		return (1);
-	}
-	if (error)
-	{
-		fprintf(stderr, "ft_ssl: %s: missing arguments. Run \'./ft_ssl -h\' for usage.\n", data->algostr[data->options & 0x1C00]);
-		return (1);
-	}
+		return (parse_error("option '-s' missing argument",  data->algostr[(data->options & 0x1C00) >> 10]));
+	if (runner)
+		printf("runner == %s\n", *runner);
+	else
+		printf("runner == %p\n", runner);
 	data->inputs = runner;
 	return (0);
 }
@@ -162,10 +154,5 @@ bool	parser(char **argv, t_data *data)
 	no_algo = get_algorithm(*runner, &data->options);
 	if (!no_algo)
 		++runner;
-	// if (data->options & BASE64)
-	// 	parse_base64(runner, data);
-	// else if (data->options & MD5 || data->options & SHA256)
-	// {
-	// }
 	return (parse_loop(runner, data, no_algo));
 }

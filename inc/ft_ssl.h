@@ -94,10 +94,11 @@ void	encode(uint8_t *output, uint32_t *input, uint32_t len);
 char	*file_to_str(const char *filename);
 
 //	display.c
-void	header_display(FILE *stream, uint16_t options, const char *name, const char *to_hash);
+bool	parse_error(char *message, const char *algostr);
+void	header_display(FILE *stream, const t_data *data, const char *to_hash);
 void	MDPrint (const uint8_t digest[16]);
-void	hash_display(FILE *stream, const uint8_t digest[16], uint16_t options, const char *name, const char *to_hash);
-void	display(const uint8_t *digest, const t_data *data, const char *infilename, const char *to_hash);
+void	hash_display(FILE *stream, const uint8_t digest[16], const t_data * data, const char *to_hash);
+void	display(const uint8_t *digest, const t_data *data, const char *to_hash);
 
 // ft_strjoin.c
 char	*ft_strjoin(char const *s1, char const *s2);
@@ -110,7 +111,7 @@ extern int		SHA256Reset(t_SHA256_CTX *);
 extern int		SHA256Input(t_SHA256_CTX *, const uint8_t *bytes, unsigned int bytecount);
 extern int		SHA256FinalBits(t_SHA256_CTX *, const uint8_t bits, unsigned int bitcount);
 extern uint8_t	SHA256Result(t_SHA256_CTX *, uint8_t Message_Digest[SHA256_HSSZ]);// 
-bool			SHAString(const t_data *data, const char *infilename, const char *to_hash);
+bool			SHAString(const t_data *data, const char *to_hash);
 
 //	md5.c
 void	MD5Init(t_MD5_CTX *context);
@@ -119,7 +120,7 @@ void	MD5Update(t_MD5_CTX *context, uint8_t *input, unsigned int inputLen);
 void	MD5Final(uint8_t digest [16], t_MD5_CTX *context);
 void	MD5memset(uint8_t *output, const uint8_t value, const uint32_t len);
 uint8_t	*MD5memcpy(uint8_t *dest, const uint8_t *src, const uint32_t len);
-void	MDString(const t_data *data, const char *infilename, const char *to_hash);
+void	MDString(const t_data *data, const char *to_hash);
 
 //	base64.c
 char	*base64_encode(const char *input);

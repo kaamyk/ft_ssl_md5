@@ -1,14 +1,14 @@
 #include "../inc/ft_ssl.h"
 
-void	launch_algo(const t_data *data, const char *infilename, char* to_hash)
+void	launch_algo(const t_data *data, char *to_hash)
 {
 	switch (data-> options & 0x1C00)
 	{
 		case MD5:
-			MDString(data, infilename, to_hash);
+			MDString(data, to_hash);
 			break ;
 		case SHA256:
-			SHAString(data, infilename, to_hash);
+			SHAString(data, to_hash);
 			break ;
 		case BASE64:
 			B64String(data, to_hash);
@@ -18,21 +18,15 @@ void	launch_algo(const t_data *data, const char *infilename, char* to_hash)
 
 void	inputs_loop(t_data *data)
 {
-	printf("inputs_loop(%p)\n", data);
-	// char	*filename = NULL;
 	char	*file_content = NULL;
 	
 	while (*data->inputs)
 	{
 		if (!(data->options & BASE64) || data->options & IN_FILE)
 			file_content = file_to_str(*data->inputs);
-		// if (data->options & BASE64)
-		// 	filename = data->out_file;
-		// else
-		// 	filename = *data->inputs;
 		if (file_content != NULL)
 		{
-			launch_algo(data, *data->inputs, file_content);
+			launch_algo(data, file_content);
 			free(file_content);
 		}
 		data->inputs++;
@@ -49,13 +43,19 @@ void	routine(t_data *data)
 	}
 	if (data->options & IS_PIPE)
 	{
-		launch_algo(data, NULL, data->pipe);
+		printf("Dans PIPE\n");
+		launch_algo(data, data->pipe);
 		data->options &= ~(IS_PIPE);
 	}
 	if (data->options & STRING)
 	{
-		launch_algo(data, *(data->inputs++), NULL);
+		launch_algo(data, *(data->inputs++));
 		data->options &= ~(STRING);
+	}
+	if (data->options & IN_FILE)
+	{
+		printf("Dans INFILE\n");
+		launch_algo(data, data->in_file);
 	}
 	if (data->inputs)
 		inputs_loop(data);

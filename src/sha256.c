@@ -304,7 +304,7 @@ uint8_t	SHA256Result(t_SHA256_CTX *context, uint8_t *Message_Digest)
 	return (shaSuccess);
 }
 
-bool	SHAString(const t_data *data, const char *infilename, const char *to_hash)
+bool	SHAString(const t_data *data, const char *to_hash)
 {
 	t_SHA256_CTX	context = {0};
 	uint8_t	digest[32] = {0};
@@ -324,6 +324,6 @@ bool	SHAString(const t_data *data, const char *infilename, const char *to_hash)
 		fprintf(stderr, "ft_ssl: sha256: Result err\n");
 		return (1);
 	}
-	display(digest, data, infilename, to_hash);
+	display(digest, data, to_hash);
 	return (0);
 }
