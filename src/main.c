@@ -65,7 +65,13 @@ bool	setup(char **argv, t_data *data)
 
 int		main( int argc, char **argv )
 {
-	t_data	data = {0};
+	t_data	data = {
+		.algostr = {
+			[0] = {"MD5"},
+			[1] = {"SHA256"},
+			[2] = {"BASE64"}
+		}
+	};
 	
 	(void) argc;
 	
@@ -74,8 +80,9 @@ int		main( int argc, char **argv )
 		free(data.pipe);
 		exit (1);
 	}
-	routine(data);
-	free(data.pipe);
+	routine(&data);
+	if (data.pipe)
+		free(data.pipe);
 	if (data.out_file)
 		free(data.out_file);
 	return (0);

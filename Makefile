@@ -13,7 +13,7 @@ DEPS	=	$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.d, $(SRCS))
 OBJDIR	=	.obj
 OBJS	=	$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
-CC		=	cc
+CC		=	gcc
 C_FLAGS	=	-Wall -Wextra -Werror -g -O2
 
 $(OBJDIR)/%.o :	$(SRCDIR)/%.c

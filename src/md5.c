@@ -205,3 +205,14 @@ void	MD5Final(uint8_t digest [16], t_MD5_CTX *context)
 	encode(digest, context->state, 16);
 	MD5memset((uint8_t *)context, 0, sizeof(*context));
 }
+
+void	MDString(const t_data *data, const char *infilename, const char *to_hash)
+{
+	uint8_t		digest[MD5_HSSZ] = {0};
+	t_MD5_CTX	context = {0};
+	
+	MD5Init(&context);
+	MD5Update(&context, (uint8_t *)to_hash, strlen(to_hash));
+	MD5Final(digest, &context);
+	display(digest, data, infilename, to_hash);
+}

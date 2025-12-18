@@ -32,21 +32,6 @@ size_t		ft_strlcpy(char *dest, const char *src, size_t size)
 	return (srclen);
 }
 
-void	base64_display(const char *res, const uint16_t options, const char *out)
-{
-	FILE	*out_stream = stdout;
-	
-	if (options & OUT_FILE)
-	{
-		out_stream = fopen(out, "a");
-		// lseek(out_stream, 0, SEEK_END);
-	}
-	fwrite(res, 1, strlen(res), out_stream);
-	fwrite("\n", 1, 1, out_stream);
-	if (out_stream != stdout)
-		fclose(out_stream);
-}
-
 char		*base64_encode(const char *input)
 {
 	const uint32_t	input_l = strlen(input);
@@ -102,22 +87,18 @@ char	*base64_decode(const char *input)
 	return (res);
 }
 
-char 	*B64String(const uint16_t options, const char *out, const char *to_hash)
+char 	*B64String(const t_data *data, const char *to_hash)
 {
-	printf("B64String(options, %s, %s)\n", out, to_hash);
+	printf("B64String(options, %s, %s)\n", data->out_file, to_hash);
 	char	*res = NULL;
 	
-	if (options & DECODE)
+	if (data->options & DECODE)
 		res = base64_decode(to_hash);
-	else if (options & ENCODE)
+	else if (data->options & ENCODE)
 		res = base64_encode(to_hash);
 	else
-	{
 		res = strdup(to_hash);
-		printf("%s", res);
-	}
-	if (out != NULL)
-		base64_display(res, options, out);
+	display((const uint8_t *)res, data, NULL, to_hash);
 	free(res);
 	return (res);
 }

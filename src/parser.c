@@ -56,16 +56,63 @@ bool	set_option(char runner, uint16_t *options)
 	return (0);
 }
 
-bool	parse_md5_sha256()
-{
-	return (0);
-}
+// bool	parse_base64(char **runner, t_data *data)
+// {
+// 	bool	error = 0;
+	
+// 	while (!error && *runner && **runner == '-')
+// 	{
+// 		if (set_option(*(*runner + 1), &data->options) == 1)
+// 			return (1);
+// 		if (!data->inputs && (data->options & IN_FILE))
+// 		{
+// 			if (++(*runner))
+// 			{
+// 				data->inputs = calloc(sizeof(char *), 2);
+// 				*data->inputs = strdup(*runner);
+// 			}
+// 			else
+// 				error = 1;
+// 		}
+// 		else if (data->options & OUT_FILE)
+// 		{
+// 			if (++runner)
+// 				data->out_file = strdup(*runner);
+// 			else
+// 				error = 1;
+// 		}
+// 		++runner;
+// 	}
+// 	return (0);
+// }
 
-bool	parse_base64(char **runner, t_data *data)
+// bool	parse_hash(char **runner, t_data *data, const bool no_algo)
+// {
+// 	while (*runner && **runner == '-' && !(data->options & STRING))
+// 	{
+// 		if (set_option(*(*runner + 1), &data->options) == 1)
+// 			return (1);
+// 		++runner;
+// 	}
+// 	if (!(data->options & USAGE) && no_algo)
+// 	{
+// 		fprintf(stderr, "ft_ssl: invalid algorithm. Run \"./ft_ssl -h\" for usage\n");
+// 		return (1);
+// 	}
+// 	else if ((data->options & STRING) != 0 && *runner == NULL)
+// 	{
+// 		fprintf(stderr, "ft_ssl: %s: '-s' options gets a invalid argument. Run './ft_ssl -h' for usage.\n", data->algostr[data->options& 0x1C00]);
+// 		return (1);
+// 	}
+// 	data->inputs = runner;
+// 	return (0);
+// }
+
+bool	parse_loop(char **runner, t_data *data, const bool no_algo)
 {
 	bool	error = 0;
 	
-	while (!error && *runner && **runner == '-')
+	while (!error && *runner && **runner == '-' && !(data->options & STRING))
 	{
 		if (set_option(*(*runner + 1), &data->options) == 1)
 			return (1);
@@ -82,20 +129,28 @@ bool	parse_base64(char **runner, t_data *data)
 		else if (data->options & OUT_FILE)
 		{
 			if (++runner)
-			{
-				printf("*runner == %s\n", *runner);
 				data->out_file = strdup(*runner);
-			}
 			else
 				error = 1;
 		}
 		++runner;
 	}
-	if (error)
+	if (!(data->options & USAGE) && no_algo)
 	{
-		fprintf(stderr, "ft_ssl: base64: missing arguments. Run \'./ft_ssl -h\' for usage.\n");
+		fprintf(stderr, "ft_ssl: %s: invalid algorithm. Run \"./ft_ssl -h\" for usage\n", data->algostr[(data->options & 0x1C00) >> 10]);
 		return (1);
 	}
+	else if (data->options & STRING && *runner == NULL)
+	{
+		fprintf(stderr, "ft_ssl: %s: '-s' option missing arguments. Run './ft_ssl -h' for usage.\n", data->algostr[data->options & 0x1C00]);
+		return (1);
+	}
+	if (error)
+	{
+		fprintf(stderr, "ft_ssl: %s: missing arguments. Run \'./ft_ssl -h\' for usage.\n", data->algostr[data->options & 0x1C00]);
+		return (1);
+	}
+	data->inputs = runner;
 	return (0);
 }
 
@@ -107,27 +162,10 @@ bool	parser(char **argv, t_data *data)
 	no_algo = get_algorithm(*runner, &data->options);
 	if (!no_algo)
 		++runner;
-	if (data->options & BASE64)
-		parse_base64(runner, data);
-	else if (data->options & MD5 || data->options & SHA256)
-	{
-		while (*runner && **runner == '-' && !(data->options & STRING))
-		{
-			if (set_option(*(*runner + 1), &data->options) == 1)
-				return (1);
-			++runner;
-		}
-		if (!(data->options & USAGE) && no_algo)
-		{
-			fprintf(stderr, "ft_ssl: invalid algorithm. Run \"./ft_ssl -h\" for usage\n");
-			return (1);
-		}
-		else if ((data->options & STRING) != 0 && *runner == NULL)
-		{
-			write(STDERR_FILENO, "ft_ssl: '-s' options gets a invalid argument. Run './ft_ssl -h' for usage.\n", 75);
-			return (1);
-		}
-		data->inputs = runner;
-	}
-	return (0);
+	// if (data->options & BASE64)
+	// 	parse_base64(runner, data);
+	// else if (data->options & MD5 || data->options & SHA256)
+	// {
+	// }
+	return (parse_loop(runner, data, no_algo));
 }

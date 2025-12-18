@@ -1,4 +1,4 @@
-#include "../inc/sha256.h"
+#include "../inc/ft_ssl.h"
 
 static inline uint32_t SHA_Ch(uint32_t x, uint32_t y, uint32_t z) { return((x & y) | (~x & z)); }
 static inline uint32_t SHA_Maj(uint32_t x, uint32_t y, uint32_t z) { return (x & y) ^ (x & z) ^ (y & z); }
@@ -304,4 +304,26 @@ uint8_t	SHA256Result(t_SHA256_CTX *context, uint8_t *Message_Digest)
 	return (shaSuccess);
 }
 
-
+bool	SHAString(const t_data *data, const char *infilename, const char *to_hash)
+{
+	t_SHA256_CTX	context = {0};
+	uint8_t	digest[32] = {0};
+	
+	if (SHA256Reset(&context))
+	{
+		fprintf(stderr, "ft_ssl: sha256: Reset err\n");
+		return (1);
+	}
+	else if (SHA256Input(&context, (const uint8_t *)to_hash, strlen(to_hash)))
+	{
+		fprintf(stderr, "ft_ssl: sha256: Input err\n");
+		return (1);
+	}
+	else if (SHA256Result(&context, (uint8_t *)digest))
+	{
+		fprintf(stderr, "ft_ssl: sha256: Result err\n");
+		return (1);
+	}
+	display(digest, data, infilename, to_hash);
+	return (0);
+}

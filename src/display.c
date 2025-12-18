@@ -1,6 +1,6 @@
 #include "../inc/ft_ssl.h"
 
-void	header_display(uint16_t options, const char *name, const char *to_hash)
+void	header_display(FILE *stream , uint16_t options, const char *name, const char *to_hash)
 {
 	size_t	to_print_size = strlen(to_hash);
 
@@ -9,21 +9,17 @@ void	header_display(uint16_t options, const char *name, const char *to_hash)
 		if (to_hash[to_print_size - 1] == '\n')
 			--to_print_size;
 		if (options & PRINT)
-		{
-			write(STDOUT_FILENO, "(\"", 2);
-			write(STDOUT_FILENO, to_hash, to_print_size);
-			write(STDOUT_FILENO, "\")= ", 4);
-		}
+			fprintf(stream, "(\"%s\")= ", to_hash);
 		else
-			write(STDOUT_FILENO, "(stdin)= ", 10);
+			fprintf(stream, "(stdin)= ");
 	}
 	else if (!(options & REVERSE))
 	{
-		write(STDOUT_FILENO, "MD5 ", 4);
+		fprintf(stream, "MD5 ");
 		if (options & STRING)
-			printf("(\"%s\")= ", to_hash);
+			fprintf(stream, "(\"%s\")= ", to_hash);
 		else
-			printf("(%s)= ", name);
+			fprintf(stream, "(%s)= ", name);
 	}
 }
 
@@ -45,21 +41,42 @@ uint8_t	define_digest_size(uint16_t options)
 	return (size);
 }
 
-void	display(const uint8_t digest[16], uint16_t options, const char *name, const char *to_hash)
+void	hash_display(FILE *stream, const uint8_t digest[16], uint16_t options, const char *infilename, const char *to_hash)
 {
 	uint8_t	digest_size = define_digest_size(options);
-
+	
 	if (!(options & QUIET))
-		header_display(options, name, to_hash);
+		header_display(stream, options, infilename, to_hash);
 	for (uint8_t i = 0; i < digest_size; i++)
-		printf ("%02x", digest[i]);
+		fprintf (stream,"%02x", digest[i]);
 	if ((options & REVERSE) && !(options & IS_PIPE))
 	{
-		if (name != NULL)
-			printf(" %s", name);
+		if (infilename)
+			fprintf(stream, " %s", infilename);
 		else
-			printf(" \"%s\"", to_hash);
+			fprintf(stream, " \"%s\"", to_hash);
 	}
-	fflush(stdout);
-	write (STDOUT_FILENO, "\n", 1);
+	fprintf(stderr, "\n");
+}
+
+void	display(const uint8_t *digest, const t_data *data, const char *infilename, const char *to_hash)
+{
+	printf("display(outfile = [%s])\n", data->out_file);
+	FILE	*stream = stdout;
+
+	if (data->options & OUT_FILE && data->out_file)
+	{
+		stream = fopen(data->out_file, "a");
+		if (stream == NULL)
+		{
+			fprintf(stderr, "ft_ssl: display: %s\n", strerror(errno));
+			return ;
+		}
+	}
+	if (data->options & (SHA256 | MD5))
+		hash_display(stream, digest, data->options, infilename, to_hash);
+	else if (data->options & BASE64)
+		fprintf(stream, "%s\n", digest);
+	if (stream != stdout)
+		fclose(stream);
 }
